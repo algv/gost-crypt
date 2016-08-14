@@ -4,7 +4,9 @@
 #ifndef KUZNECHIK_H
 #define KUZNECHIK_H
 
-#include <stdint.h>
+#include <linux/init.h>
+#include <linux/module.h>
+#include <linux/types.h>
 
 // my 128-bit datatype
 typedef union {	
@@ -25,7 +27,7 @@ void kuz_set_encrypt_key(kuz_key_t *subkeys, const uint8_t key[32]);
 void kuz_set_decrypt_key(kuz_key_t *subkeys, const uint8_t key[32]);	
 
 // single-block ecp ops
-void kuz_encrypt_block(kuz_key_t *subkeys, void *x);
-void kuz_decrypt_block(kuz_key_t *subkeys, void *x);
+void kuz_encrypt_block(kuz_key_t *subkeys, void *out, const void *in);
+void kuz_decrypt_block(kuz_key_t *subkeys, void *out, const void *in);
 
 #endif

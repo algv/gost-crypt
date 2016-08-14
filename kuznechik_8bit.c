@@ -11,7 +11,7 @@
 
 // The S-Box from section 5.1.1
 
-const uint8_t kuz_pi[0x100] = {
+static const uint8_t kuz_pi[0x100] = {
 	0xFC, 0xEE, 0xDD, 0x11, 0xCF, 0x6E, 0x31, 0x16, 	// 00..07
 	0xFB, 0xC4, 0xFA, 0xDA, 0x23, 0xC5, 0x04, 0x4D, 	// 08..0F
 	0xE9, 0x77, 0xF0, 0xDB, 0x93, 0x2E, 0x99, 0xBA, 	// 10..17
@@ -212,13 +212,13 @@ void kuz_set_decrypt_key(kuz_key_t *kuz, const uint8_t key[32])
 
 // encrypt a block - 8 bit way
 
-void kuz_encrypt_block(kuz_key_t *key, void *blk)
+void kuz_encrypt_block(kuz_key_t *key, void *out, const void *in)
 {
 	int i, j;
 	w128_t x;
 
-	x.q[0] = ((uint64_t *) blk)[0];
-	x.q[1] = ((uint64_t *) blk)[1];
+	x.q[0] = ((const uint64_t *) in)[0];
+	x.q[1] = ((const uint64_t *) in)[1];
 
 	for (i = 0; i < 9; i++) {
 
@@ -229,19 +229,19 @@ void kuz_encrypt_block(kuz_key_t *key, void *blk)
 			x.b[j] = kuz_pi[x.b[j]];
 		kuz_l(&x);
 	}
-	((uint64_t *) blk)[0] = x.q[0] ^ key->k[9].q[0];
-	((uint64_t *) blk)[1] = x.q[1] ^ key->k[9].q[1];
+	((uint64_t *) out)[0] = x.q[0] ^ key->k[9].q[0];
+	((uint64_t *) out)[1] = x.q[1] ^ key->k[9].q[1];
 }
 
 // decrypt a block - 8 bit way
 
-void kuz_decrypt_block(kuz_key_t *key, void *blk)
+void kuz_decrypt_block(kuz_key_t *key, void *out, const void *in)
 {
 	int i, j;
 	w128_t x;
 
-	x.q[0] = ((uint64_t *) blk)[0] ^ key->k[9].q[0];
-	x.q[1] = ((uint64_t *) blk)[1] ^ key->k[9].q[1];
+	x.q[0] = ((const uint64_t *) in)[0] ^ key->k[9].q[0];
+	x.q[1] = ((const uint64_t *) in)[1] ^ key->k[9].q[1];
 
 	for (i = 8; i >= 0; i--) {
 	
@@ -252,8 +252,8 @@ void kuz_decrypt_block(kuz_key_t *key, void *blk)
 		x.q[0] ^= key->k[i].q[0];	
 		x.q[1] ^= key->k[i].q[1];
 	}
-	((uint64_t *) blk)[0] = x.q[0];
-	((uint64_t *) blk)[1] = x.q[1];
+	((uint64_t *) out)[0] = x.q[0];
+	((uint64_t *) out)[1] = x.q[1];
 }
 
 #endif

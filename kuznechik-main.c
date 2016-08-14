@@ -1,5 +1,5 @@
-#include <linux/module.h>
 #include <linux/init.h>
+#include <linux/module.h>
 #include <linux/types.h>
 #include <linux/errno.h>
 #include <linux/crypto.h>
@@ -30,15 +30,13 @@ int kuznechik_set_key(struct crypto_tfm *tfm, const u8 *in_key, unsigned int key
 static void kuznechik_encrypt(struct crypto_tfm *tfm, u8 *out, const u8 *in)
 {
 	struct crypto_kuznechik_ctx *ctx = crypto_tfm_ctx(tfm);
-	memcpy(out, in, KUZNECHIK_BLOCK_SIZE);
-	kuz_encrypt_block(&ctx->encrypt_key, out);
+	kuz_encrypt_block(&ctx->encrypt_key, out, in);
 }
 
 static void kuznechik_decrypt(struct crypto_tfm *tfm, u8 *out, const u8 *in)
 {
 	struct crypto_kuznechik_ctx *ctx = crypto_tfm_ctx(tfm);
-	memcpy(out, in, KUZNECHIK_BLOCK_SIZE);
-	kuz_decrypt_block(&ctx->decrypt_key, out);
+	kuz_decrypt_block(&ctx->decrypt_key, out, in);
 }
 
 static struct crypto_alg kuznechik_alg = {
@@ -79,6 +77,4 @@ MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Petr Sokolov <petka.sokolov@gmail.com>");
 MODULE_DESCRIPTION("GOST R 34.12-2015");
 MODULE_VERSION("0.0.1");
-MODULE_ALIAS_CRYPTO("kuznechik");
-MODULE_ALIAS_CRYPTO("kuznechik-generic");
 

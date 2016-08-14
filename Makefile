@@ -1,11 +1,12 @@
 obj-m := \
 	kuznechik.o
 
-kuznechik-objs := \
+kuznechik-y := \
+	kuznechik-main.o \
 	kuznechik_8bit.o \
 	kuznechik_128bit.o
 
-ccflags-y := -march=native
+ccflags-y := -march=native -O9
 
 KDIR = /lib/modules/$(shell uname -r)/build
 PWD = $(shell pwd)

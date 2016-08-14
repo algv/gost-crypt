@@ -159,6 +159,37 @@ static void kuz_l_inv(w128_t *w)
 	}
 }
 
+// initalize lookup tables
+
+void kuz_init(void)
+{
+	int i, j;
+	w128_t x;
+
+	for (i = 0; i < 16; i++) {
+		for (j = 0; j < 256; j++) {
+			x.q[0] = 0;
+			x.q[1] = 0;
+			x.b[i] = kuz_pi[j];
+			kuz_l(&x);
+			kuz_pil_enc128[i][j] = *((__m128i *) &x);
+			
+			x.q[0] = 0;
+			x.q[1] = 0;
+			x.b[i] = j; // kuz_pi[j];
+			kuz_l_inv(&x);
+			kuz_l_dec128[i][j] = *((__m128i *) &x);			
+
+			x.q[0] = 0;
+			x.q[1] = 0;
+			x.b[i] = kuz_pi_inv[j];
+			kuz_l_inv(&x);
+			kuz_pil_dec128[i][j] = *((__m128i *) &x);			
+		}
+	}
+	kuz_initialized = 1;
+}
+
 // key setup
 
 void kuz_set_encrypt_key(kuz_key_t *kuz, const uint8_t key[32])
@@ -225,12 +256,12 @@ void kuz_set_decrypt_key(kuz_key_t *kuz, const uint8_t key[32])
 
 // encrypt a block - 128 bit way
 
-void kuz_encrypt_block(kuz_key_t *key, void *blk)
+void kuz_encrypt_block(kuz_key_t *key, void *out, const void *in)
 {
 	int i;
 	__m128i x;
 
-	x = *((__m128i *) blk);
+	x = *((const __m128i *) in);
 
 	for (i = 0; i < 9; i++) {
 		x ^= *((__m128i *) &key->k[i]);
@@ -254,17 +285,17 @@ void kuz_encrypt_block(kuz_key_t *key, void *blk)
 	}
 	x ^= *((__m128i *) &key->k[9]);
 
-	*((__m128i *) blk) = x;
+	*((__m128i *) out) = x;
 }
 
 // decrypt a block - 128 bit way
 
-void kuz_decrypt_block(kuz_key_t *key, void *blk)
+void kuz_decrypt_block(kuz_key_t *key, void *out, const void *in)
 {
 	int i, j;
 	__m128i x;
 
-	x = *((__m128i *) blk);
+	x = *((const __m128i *) in);
 	
 	x = kuz_l_dec128[ 0][((uint8_t *) &x)[ 0]] ^
 		kuz_l_dec128[ 1][((uint8_t *) &x)[ 1]] ^
@@ -307,38 +338,7 @@ void kuz_decrypt_block(kuz_key_t *key, void *blk)
 		((uint8_t *) &x)[j] = kuz_pi_inv[((uint8_t *) &x)[j]];	
 	x ^= *((__m128i *) &key->k[0]);
 
-	*((__m128i *) blk) = x;
-}
-
-// initalize lookup tables
-
-void kuz_init(void)
-{
-	int i, j;
-	w128_t x;
-
-	for (i = 0; i < 16; i++) {
-		for (j = 0; j < 256; j++) {
-			x.q[0] = 0;
-			x.q[1] = 0;
-			x.b[i] = kuz_pi[j];
-			kuz_l(&x);
-			kuz_pil_enc128[i][j] = *((__m128i *) &x);
-			
-			x.q[0] = 0;
-			x.q[1] = 0;
-			x.b[i] = j; // kuz_pi[j];
-			kuz_l_inv(&x);
-			kuz_l_dec128[i][j] = *((__m128i *) &x);			
-
-			x.q[0] = 0;
-			x.q[1] = 0;
-			x.b[i] = kuz_pi_inv[j];
-			kuz_l_inv(&x);
-			kuz_pil_dec128[i][j] = *((__m128i *) &x);			
-		}
-	}
-	kuz_initialized = 1;
+	*((__m128i *) out) = x;
 }
 
 #endif
