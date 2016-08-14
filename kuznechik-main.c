@@ -77,4 +77,5 @@ MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Petr Sokolov <petka.sokolov@gmail.com>");
 MODULE_DESCRIPTION("GOST R 34.12-2015");
 MODULE_VERSION("0.0.1");
-
+MODULE_ALIAS_CRYPTO("kuznechik");
+MODULE_ALIAS_CRYPTO("kuznechik-generic");
