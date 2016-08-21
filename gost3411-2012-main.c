@@ -3,8 +3,6 @@
 #include <linux/types.h>
 #include <linux/errno.h>
 #include <crypto/internal/hash.h>
-//#include <linux/crypto.h>
-#include <asm/byteorder.h>
 
 #include "gost3411-2012-core.h"
 
@@ -13,7 +11,7 @@
 #define STRIBOG_512_DIGEST_SIZE (512 / 8)
 #define STRIBOG_512_BLOCK_SIZE  64
 
-static int stribog_256_init(struct shash_desc *desc)
+static int stribog256_init(struct shash_desc *desc)
 {
 	GOST34112012Context *CTX = shash_desc_ctx(desc);
 
@@ -21,7 +19,7 @@ static int stribog_256_init(struct shash_desc *desc)
 	return 0;
 }
 
-static int stribog_512_init(struct shash_desc *desc)
+static int stribog512_init(struct shash_desc *desc)
 {
 	GOST34112012Context *CTX = shash_desc_ctx(desc);
 
@@ -47,7 +45,7 @@ static int stribog_final(struct shash_desc *desc, u8 *out)
 
 static struct shash_alg stribog256_alg = {
 	.digestsize		=	STRIBOG_256_DIGEST_SIZE,
-	.init   		=	stribog_256_init,
+	.init   		=	stribog256_init,
 	.update 		=	stribog_update,
 	.final  		=	stribog_final,
 	.descsize		=	sizeof(GOST34112012Context),
@@ -62,7 +60,7 @@ static struct shash_alg stribog256_alg = {
 
 static struct shash_alg stribog512_alg = {
 	.digestsize		=	STRIBOG_512_DIGEST_SIZE,
-	.init   		=	stribog_512_init,
+	.init   		=	stribog512_init,
 	.update 		=	stribog_update,
 	.final  		=	stribog_final,
 	.descsize		=	sizeof(GOST34112012Context),

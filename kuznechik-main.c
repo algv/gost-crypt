@@ -3,7 +3,6 @@
 #include <linux/types.h>
 #include <linux/errno.h>
 #include <linux/crypto.h>
-#include <asm/byteorder.h>
 
 #include "kuznechik.h"
 
